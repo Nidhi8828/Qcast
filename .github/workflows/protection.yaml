@@ -1,0 +1,16 @@
+name: Restrict Merge to Production
+on:
+  pull_request:
+    branches:
+      - production
+
+jobs:
+  restrict_merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Source Branch
+        run: |
+          if [[ "${{ github.base_ref }}" == "production" && "${{ github.head_ref }}" != "staging" ]]; then
+            echo "❌ Merging to production is only allowed from staging!"
+            exit 1
+          fi

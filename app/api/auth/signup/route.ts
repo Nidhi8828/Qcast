@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db';
 import { eq } from 'drizzle-orm';
+import { sendVerificationEmail } from "@/lib/email";
+import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
   try {
@@ -33,18 +35,21 @@ export async function POST(req: Request) {
 
     const [newUser] = await db
       .insert(users)
-      .values({ email, password_hash: hashedPassword })
+      .values({ email, password_hash: hashedPassword, is_verified: false })
       .returning({
         id: users.id,
-        email: users.email
+        email: users.email, 
       });
 
+    const token = jwt.sign({ email }, process.env.JWT_SECRET as string, { expiresIn: "24h" });
+
+    await sendVerificationEmail(email, token);
+
     return NextResponse.json(
-      { message: 'User registered successfully', user: newUser },
+      { message: 'User registered successfully. Check your email for verification.', user: newUser },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Error in registration:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

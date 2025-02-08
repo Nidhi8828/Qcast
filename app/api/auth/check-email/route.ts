@@ -17,7 +17,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ exists: !!user }, { status: 200 });
   } catch (error) {
-    console.error("Error checking email:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

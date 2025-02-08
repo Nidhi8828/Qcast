@@ -13,8 +13,10 @@ import {
 } from 'drizzle-orm/pg-core';
 import { count, eq, ilike } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
+import { sql } from 'drizzle-orm';
+import { uuid, varchar, boolean,index } from 'drizzle-orm/pg-core';
 
-export const db = drizzle(neon(process.env.POSTGRES_URL!));
+export const db = drizzle(neon(process.env.POSTGRES_URL!),);
 
 export const statusEnum = pgEnum('status', ['active', 'inactive', 'archived']);
 
@@ -70,3 +72,18 @@ export async function getProducts(
 export async function deleteProductById(id: number) {
   await db.delete(products).where(eq(products.id, id));
 }
+
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar('email').unique().notNull(),
+  password_hash: varchar('password_hash'), 
+  google_id: varchar('google_id'),       
+  is_verified: boolean('is_verified').default(false),
+  created_at: timestamp('created_at').default(sql`now()`),
+  updated_at: timestamp('updated_at').default(sql`now()`),
+}, (table) => {
+  return {
+      emailIdx: index('email_idx').on(table.email),
+      googleIdIdx: index('google_id_idx').on(table.google_id),
+  };
+});

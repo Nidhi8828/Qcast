@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +20,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const [showMessage, setShowMessage] = useState(false);
+
+  const [verificationMessage, setVerificationMessage] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      setShowMessage(true);
+    } 
+    else if (searchParams.get('emailSent') === 'true') {
+      setVerificationMessage(true);
+    }
+    // remove the query parameter from the url
+    window.history.replaceState(null, '', '/login');
+  }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,10 +65,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex justify-center items-start md:items-center p-8">
+    <div className="min-h-screen flex flex-col justify-center items-start md:items-center p-8">
+      {showMessage && (
+        <div className="text-black text-center p-4 rounded-lg mb-4">
+          ✅ Email verified successfully! You can now log in.
+        </div>
+      )}
+      {verificationMessage && (
+        <div className="text-black text-center p-4 rounded-lg mb-4">
+          📩 Verification email sent! Check your inbox.
+        </div>
+      )}
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Login</CardTitle>
+          <CardTitle className="text-center text-2xl">Log In</CardTitle>
           <CardDescription className="text-center pt-1">
             Welcome back to Qcast!
           </CardDescription>

@@ -40,7 +40,7 @@ export default function SignupPage() {
       });
 
       if (response.ok) {
-        router.push('/login');
+        router.push('/login?emailSent=true');
       } else {
         const data = await response.json();
         setError(data.error || 'An error occurred during signup');

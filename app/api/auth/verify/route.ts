@@ -25,8 +25,9 @@ export async function GET(req: Request) {
 
     // Update user as verified
     await db.update(users).set({ is_verified: true }).where(eq(users.email, email));
+    
+    return NextResponse.redirect(new URL("/login?verified=true", req.url));
 
-    return NextResponse.json({ message: "Email verified successfully!" }, { status: 200 });
   } catch (error) {
     console.error("Verification error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -17,7 +17,7 @@ envs:
   value: __AUTH_SECRET_PLACEHOLDER
 - key: AUTH_TRUST_HOST
   scope: RUN_AND_BUILD_TIME
-  value: __AUTH_TRUST_HOST_PLACEHOLDER
+  value: "__AUTH_TRUST_HOST_PLACEHOLDER"
 features:
 - buildpack-stack=ubuntu-22
 ingress:

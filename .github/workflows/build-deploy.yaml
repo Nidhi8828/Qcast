@@ -132,7 +132,7 @@ jobs:
             if [ ! -z "${{ github.event.inputs.version }}" ]; then
                 git checkout ${{ github.event.inputs.version }}
                 pnpm next build
-                docker build -t registry.digitalocean.com/qcast/qcast:$DOCKER_TAG_NAME
+                docker build -t registry.digitalocean.com/qcast/qcast:$DOCKER_TAG_NAME .
                 docker push registry.digitalocean.com/qcast/qcast:$DOCKER_TAG_NAME
             fi
           fi

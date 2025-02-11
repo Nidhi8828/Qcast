@@ -1,0 +1,246 @@
+name: '[trunk branch] - Build and Deploy'
+
+on:
+  push:
+    branches:
+      - trunk
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        description: 'Version to deploy to prod, Example: d65fecd'
+
+        
+env:
+  GIT_SHA: ${{ github.sha }}
+  ENV_URL: ''
+
+  # STAGING PARAMS
+  STAGING_POSTGRES_URL: ${{ secrets.STAGING_POSTGRES_URL }}
+  STAGING_NEXTAUTH_URL: https://staging.qcast.me
+  STAGING_AUTH_SECRET: ${{ secrets.STAGING_AUTH_SECRET }}
+
+  # PRODUCTION PARAMS
+  PRODUCTION_POSTGRES_URL: ${{ secrets.PRODUCTION_POSTGRES_URL }}
+  PRODUCTION_NEXTAUTH_URL: https://app.qcast.me
+  PRODUCTION_AUTH_SECRET: ${{ secrets.PRODUCTION_AUTH_SECRET }}
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    permissions:
+      contents: 'read'
+      actions: 'read'
+
+    outputs:
+      GH_DEPL_ENV: ${{ steps.get_github_deploy_env.outputs.GH_DEPL_ENV }}
+      GH_DEPL_URL: ${{ steps.get_github_deploy_env.outputs.GH_DEPL_URL }}
+
+    steps:
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Environment variables setup
+        run: |
+          if [ "${{ github.event_name }}" == 'workflow_dispatch' ]; then
+
+            if [ -z "${{ github.event.inputs.version }}" ]; then
+              echo "Error: Version to deploy must be specified."
+              exit 1
+            fi
+
+            if [ ! -z "${{ github.event.inputs.version }}" ]; then
+              echo "DOCKER_TAG_NAME=${{ inputs.version }}" >> $GITHUB_ENV
+            fi
+
+            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+
+            echo "POSTGRES_URL=$PRODUCTION_POSTGRES_URL" >> $GITHUB_ENV
+            echo "NEXTAUTH_URL=$PRODUCTION_NEXTAUTH_URL" >> $GITHUB_ENV
+
+          else
+
+            echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+
+            echo "DOCKER_TAG_NAME=$(echo ${GIT_SHA:0:7})-staging" >> $GITHUB_ENV
+
+            echo "POSTGRES_URL=$STAGING_POSTGRES_URL" >> $GITHUB_ENV
+            echo "NEXTAUTH_URL=$STAGING_NEXTAUTH_URL" >> $GITHUB_ENV
+
+          fi
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+
+      - name: Prepare pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        id: node-cache
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: node-cache-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            node-cache-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: pnpm install
+
+
+      - name: Set Github Deployment environment
+        id: get_github_deploy_env
+        run: |
+          if [ "${{ github.event_name }}" != 'workflow_dispatch' ]; then
+            echo "GH_DEPL_ENV=Staging" >> $GITHUB_OUTPUT
+            echo "GH_DEPL_URL=https://demo.daostreet.io" >> $GITHUB_OUTPUT
+          else
+            echo "GH_DEPL_ENV=Production" >> $GITHUB_OUTPUT
+            echo "GH_DEPL_URL=https://daostreet.io" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Digital Ocean doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Log in to Digital Ocean Container Registry
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Build Affected Projects
+        run: |
+
+          if [ "${{ github.event_name }}" != 'workflow_dispatch' ]; then
+            # Automatically build affected projects based on commits
+            pnpm next build
+            docker build -t registry.digitalocean.com/qcast/qcast:$DOCKER_TAG_NAME .
+            docker push registry.digitalocean.com/qcast/qcast:$DOCKER_TAG_NAME
+
+          else
+            if [ ! -z "${{ github.event.inputs.version }}" ]; then
+                git checkout ${{ github.event.inputs.version }}
+                pnpm next build
+                docker build -t registry.digitalocean.com/qcast/qcast:$DOCKER_TAG_NAME
+                docker push registry.digitalocean.com/qcast/qcast:$DOCKER_TAG_NAME
+            fi
+          fi
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: 
+     name: ${{ needs.build.outputs.GH_DEPL_ENV }}
+     url: ${{ needs.build.outputs.GH_DEPL_URL }}
+    timeout-minutes: 7
+
+    needs: build
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Environment variables setup
+        run: |
+          if [ "${{ github.event_name }}" == 'workflow_dispatch' ]; then
+
+            if [ -z "${{ github.event.inputs.version }}" ]; then
+              echo "Error: Version to deploy must be specified."
+              exit 1
+            fi
+
+            if [ ! -z "${{ github.event.inputs.version }}" ]; then
+              echo "DOCKER_TAG_NAME=${{ inputs.version }}" >> $GITHUB_ENV
+            fi
+
+            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+
+            echo "POSTGRES_URL=$PRODUCTION_POSTGRES_URL" >> $GITHUB_ENV
+            echo "NEXTAUTH_URL=$PRODUCTION_NEXTAUTH_URL" >> $GITHUB_ENV
+
+          else
+
+            echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+
+            echo "DOCKER_TAG_NAME=$(echo ${GIT_SHA:0:7})-staging" >> $GITHUB_ENV
+
+            echo "POSTGRES_URL=$STAGING_POSTGRES_URL" >> $GITHUB_ENV
+            echo "NEXTAUTH_URL=$STAGING_NEXTAUTH_URL" >> $GITHUB_ENV
+
+          fi
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+
+      - name: Prepare pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        id: node-cache
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: node-cache-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            node-cache-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: pnpm install
+
+      - name: Install Digital Ocean doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+
+      - name: Run Database Migrations
+        run: |
+          ls
+
+      - name: Deploy to DigitalOcean App Platform
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        run: |
+          # Choose the correct manifest based on env
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            DO_APP_MANIFEST="digitalocean/production/apps-manifest.yml"
+            DO_APP_ID="f0cf238d-e54f-4129-b11c-9a56a8be6cab"
+          else
+            DO_APP_MANIFEST="digitalocean/staging/apps-manifest.yml"
+            DO_APP_ID="44c3a159-c2f7-4824-bd30-4c6b2936f66b"
+          fi
+
+          # 2. Fetch the current App Spec from DigitalOcean and store it
+          doctl apps spec get "$DO_APP_ID" > current-do-app-manifest.yaml
+
+          # 3. Extract the existing tags for both services using yq
+          CURRENT_TAG=$(yq e '.services[] | select(.name == "qcast").image.tag' current-do-app-manifest.yaml)
+
+          echo "Current Tag: $CURRENT_TAG"
+          echo "Deploying to $ENVIRONMENT..".
+          
+          # Replace placeholders similar to the configmap step
+          sed -i "s|__NEXTAUTH_URL_PLACEHOLDER|$NEXTAUTH_URL|g" "$DO_APP_MANIFEST"
+          sed -i "s|__POSTGRES_URL_PLACEHOLDER|$POSTGRES_URL|g" "$DO_APP_MANIFEST"
+
+          echo "Updating DigitalOcean App manifest with tag: $DOCKER_TAG_NAME"
+          sed -i "s|__TAG_PLACEHOLDER|$DOCKER_TAG_NAME|g" "$DO_APP_MANIFEST"
+      
+          # Finally, run doctl to update the App Platform deployment
+          doctl apps update "$DO_APP_ID" --spec "$DO_APP_MANIFEST"

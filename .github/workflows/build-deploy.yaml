@@ -19,11 +19,13 @@ env:
   STAGING_POSTGRES_URL: ${{ secrets.STAGING_POSTGRES_URL }}
   STAGING_NEXTAUTH_URL: https://staging.qcast.me
   STAGING_AUTH_SECRET: ${{ secrets.STAGING_AUTH_SECRET }}
+  STAGING_AUTH_TRUST_HOST: "true"
 
   # PRODUCTION PARAMS
   PRODUCTION_POSTGRES_URL: ${{ secrets.PRODUCTION_POSTGRES_URL }}
   PRODUCTION_NEXTAUTH_URL: https://app.qcast.me
   PRODUCTION_AUTH_SECRET: ${{ secrets.PRODUCTION_AUTH_SECRET }}
+  PRODUCTION_AUTH_TRUST_HOST: "true"
 
 
 jobs:
@@ -63,6 +65,8 @@ jobs:
 
             echo "POSTGRES_URL=$PRODUCTION_POSTGRES_URL" >> $GITHUB_ENV
             echo "NEXTAUTH_URL=$PRODUCTION_NEXTAUTH_URL" >> $GITHUB_ENV
+            echo "AUTH_SECRET=$PRODUCTION_AUTH_SECRET" >> $GITHUB_ENV
+            echo "AUTH_TRUST_HOST=$PRODUCTION_AUTH_TRUST_HOST" >> $GITHUB_ENV
 
           else
 
@@ -72,6 +76,8 @@ jobs:
 
             echo "POSTGRES_URL=$STAGING_POSTGRES_URL" >> $GITHUB_ENV
             echo "NEXTAUTH_URL=$STAGING_NEXTAUTH_URL" >> $GITHUB_ENV
+            echo "AUTH_SECRET=$STAGING_AUTH_SECRET" >> $GITHUB_ENV
+            echo "AUTH_TRUST_HOST=$STAGING_AUTH_TRUST_HOST" >> $GITHUB_ENV
 
           fi
 
@@ -167,6 +173,8 @@ jobs:
 
             echo "POSTGRES_URL=$PRODUCTION_POSTGRES_URL" >> $GITHUB_ENV
             echo "NEXTAUTH_URL=$PRODUCTION_NEXTAUTH_URL" >> $GITHUB_ENV
+            echo "AUTH_SECRET=$PRODUCTION_AUTH_SECRET" >> $GITHUB_ENV
+            echo "AUTH_TRUST_HOST=$PRODUCTION_AUTH_TRUST_HOST" >> $GITHUB_ENV
 
           else
 
@@ -176,6 +184,8 @@ jobs:
 
             echo "POSTGRES_URL=$STAGING_POSTGRES_URL" >> $GITHUB_ENV
             echo "NEXTAUTH_URL=$STAGING_NEXTAUTH_URL" >> $GITHUB_ENV
+            echo "AUTH_SECRET=$STAGING_AUTH_SECRET" >> $GITHUB_ENV
+            echo "AUTH_TRUST_HOST=$STAGING_AUTH_TRUST_HOST" >> $GITHUB_ENV
 
           fi
 
@@ -237,6 +247,8 @@ jobs:
           # Replace placeholders similar to the configmap step
           sed -i "s|__NEXTAUTH_URL_PLACEHOLDER|$NEXTAUTH_URL|g" "$DO_APP_MANIFEST"
           sed -i "s|__POSTGRES_URL_PLACEHOLDER|$POSTGRES_URL|g" "$DO_APP_MANIFEST"
+          sed -i "s|__AUTH_SECRET_PLACEHOLDER|$AUTH_SECRET|g" "$DO_APP_MANIFEST"
+          sed -i "s|__AUTH_TRUST_HOST_PLACEHOLDER|$AUTH_TRUST_HOST|g" "$DO_APP_MANIFEST"
 
           echo "Updating DigitalOcean App manifest with tag: $DOCKER_TAG_NAME"
           sed -i "s|__TAG_PLACEHOLDER|$DOCKER_TAG_NAME|g" "$DO_APP_MANIFEST"

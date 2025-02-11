@@ -215,7 +215,6 @@ jobs:
           ls
 
       - name: Deploy to DigitalOcean App Platform
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           # Choose the correct manifest based on env
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then

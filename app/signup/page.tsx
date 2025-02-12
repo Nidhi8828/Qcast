@@ -50,20 +50,20 @@ export default function SignupPage() {
     }
   }
 
-  async function handleGoogleSignUp() {
-    try {
-      const result = await signIn('google', { callbackUrl: '/' });
+  // async function handleGoogleSignUp() {
+  //   try {
+  //     const result = await signIn('google', { callbackUrl: '/' });
 
-      console.log('Google Sign-in Response:', result);
+  //     console.log('Google Sign-in Response:', result);
 
-      if (!result || typeof result !== 'object') {
-        throw new Error('Invalid response from Google sign-in');
-      }
-    } catch (error) {
-      console.error('Google Sign-in Error:', error);
-      setError('Google authentication failed. Please try again.');
-    }
-  }
+  //     if (!result || typeof result !== 'object') {
+  //       throw new Error('Invalid response from Google sign-in');
+  //     }
+  //   } catch (error) {
+  //     console.error('Google Sign-in Error:', error);
+  //     setError('Google authentication failed. Please try again.');
+  //   }
+  // }
 
   return (
     <div className="min-h-screen flex justify-center items-start md:items-center p-8">
@@ -132,7 +132,7 @@ export default function SignupPage() {
                   d="M23.49 47.98c6.21 0 11.76-2.1 16.01-5.69l-6.42-5.01c-2.49 1.65-5.54 2.63-9.3 2.63-6.02 0-11.4-3.39-13.34-8.13l-7.32 5.71c4.07 6.62 11.71 11.46 20.37 11.46z"
                 />
               </svg>
-              Sign in with Google
+              Sign up with Google
             </Button>
           </form>
           <p className="text-sm text-gray-600">

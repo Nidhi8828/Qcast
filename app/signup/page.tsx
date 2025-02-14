@@ -1,41 +1,27 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { signIn } from 'next-auth/react';
 import {
   Card,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-  CardContent
+  CardDescription,
+  CardContent,
+  CardFooter
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { googleSignIn } from 'app/api/auth/google/route';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-
-  const searchParams = useSearchParams();
-  const [showMessage, setShowMessage] = useState(false);
-
-  const [verificationMessage, setVerificationMessage] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get('verified') === 'true') {
-      setShowMessage(true);
-    } 
-    else if (searchParams.get('emailSent') === 'true') {
-      setVerificationMessage(true);
-    }
-    // remove the query parameter from the url
-    window.history.replaceState(null, '', '/login');
-  }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -47,40 +33,45 @@ export default function LoginPage() {
     }
 
     try {
-      const response = await fetch('/api/auth/signin', {
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
 
       if (response.ok) {
-        router.push('/');
+        router.push('/login?emailSent=true');
       } else {
         const data = await response.json();
-        setError(data.error || 'Invalid email or password');
+        setError(data.error || 'An error occurred during signup');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
     }
   }
 
+  async function handleGoogleSignUp() {
+    try {
+      const result = await signIn('google', { callbackUrl: '/' });
+
+      console.log('Google Sign-in Response:', result);
+
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid response from Google sign-in');
+      }
+    } catch (error) {
+      console.error('Google Sign-in Error:', error);
+      setError('Google authentication failed. Please try again.');
+    }
+  }
+
   return (
-    <div className="min-h-screen flex flex-col justify-center items-start md:items-center p-8">
-      {showMessage && (
-        <div className="text-black text-center p-4 rounded-lg mb-4">
-          ✅ Email verified successfully! You can now log in.
-        </div>
-      )}
-      {verificationMessage && (
-        <div className="text-black text-center p-4 rounded-lg mb-4">
-          📩 Verification email sent! Check your inbox.
-        </div>
-      )}
+    <div className="min-h-screen flex justify-center items-start md:items-center p-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">Log In</CardTitle>
+          <CardTitle className="text-center text-2xl">Sign Up</CardTitle>
           <CardDescription className="text-center pt-1">
-            Welcome back to Qcast!
+            Create your Qcast account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -109,12 +100,15 @@ export default function LoginPage() {
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button type="submit" className="w-full">
-              Login
+              Sign Up
             </Button>
           </form>
         </CardContent>
         <CardFooter className="justify-center flex-col gap-y-5">
-          <form action={googleSignIn} className="w-full">
+        <form
+            action={googleSignIn} 
+            className="w-full"
+          >
             <Button className="w-full flex items-center justify-center gap-2">
               <svg
                 className="w-5 h-5"
@@ -142,9 +136,9 @@ export default function LoginPage() {
             </Button>
           </form>
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login" className="text-blue-600 hover:underline">
+              Log in
             </Link>
           </p>
         </CardFooter>

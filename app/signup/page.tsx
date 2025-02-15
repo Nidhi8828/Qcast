@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+// import { signIn } from 'next-auth/react';
 import {
   Card,
   CardHeader,
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { googleSignIn } from 'app/api/auth/google/route';
+import TurnstileComponent from '@/components/turnstile'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -23,22 +24,39 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+    const [token, setToken] = useState('');
+
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
-
+  
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
     }
-
+  
     try {
+    
+      const captchaResponse = await fetch('/api/auth/validate-captcha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token }),
+      });
+  
+      const captchaData = await captchaResponse.json();
+  
+      if (!captchaResponse.ok || !captchaData.success) {
+        setError(captchaData.error || 'CAPTCHA validation failed');
+        return;
+      }
+  
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
-
+  
       if (response.ok) {
         router.push('/login?emailSent=true');
       } else {
@@ -49,21 +67,6 @@ export default function SignupPage() {
       setError('An error occurred. Please try again.');
     }
   }
-
-  // async function handleGoogleSignUp() {
-  //   try {
-  //     const result = await signIn('google', { callbackUrl: '/' });
-
-  //     console.log('Google Sign-in Response:', result);
-
-  //     if (!result || typeof result !== 'object') {
-  //       throw new Error('Invalid response from Google sign-in');
-  //     }
-  //   } catch (error) {
-  //     console.error('Google Sign-in Error:', error);
-  //     setError('Google authentication failed. Please try again.');
-  //   }
-  // }
 
   return (
     <div className="min-h-screen flex justify-center items-start md:items-center p-8">
@@ -98,6 +101,9 @@ export default function SignupPage() {
                 required
               />
             </div>
+            <TurnstileComponent  onToken={(token) => {
+              console.log("CAPTCHA token:", token);
+              setToken(token)}}/>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button type="submit" className="w-full">
               Sign Up

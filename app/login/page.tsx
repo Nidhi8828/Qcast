@@ -20,7 +20,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-
   const searchParams = useSearchParams();
   const [showMessage, setShowMessage] = useState(false);
 
@@ -34,7 +33,8 @@ export default function LoginPage() {
       setVerificationMessage(true);
     }
     // remove the query parameter from the url
-    window.history.replaceState(null, '', '/login');
+    // window.history.replaceState(null, '', '/login');
+    router.replace('/login', { scroll: false });
   }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -65,7 +65,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-start md:items-center p-8">
+    <div className="min-h-screen flex flex-col justify-center items-center md:items-center p-8">
       {showMessage && (
         <div className="text-black text-center p-4 rounded-lg mb-4">
           ✅ Email verified successfully! You can now log in.
@@ -106,8 +106,9 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              {error && <p className="text-red-500 text-sm">{error}</p>}
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <Link href="/forgotPassword" className="text-blue-600 text-xs px-1">Forgot Password?</Link>
             <Button type="submit" className="w-full">
               Login
             </Button>

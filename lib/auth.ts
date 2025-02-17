@@ -4,6 +4,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db';
 import { eq } from 'drizzle-orm';
+import { AuthError } from 'next-auth';
 import bcrypt from 'bcryptjs';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -21,13 +22,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Missing email or password');
+          throw new AuthError('Missing email or password');
         }
 
         // Find user in DB
         const email = credentials?.email?.toString(); // Ensure it's a string
         if (!email) {
-          throw new Error('Invalid email');
+          throw new AuthError('Invalid email');
         }
         const userResult = await db
           .select()
@@ -37,20 +38,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const user = userResult.length ? userResult[0] : null;
 
         if (!user || !user.password_hash) {
-          throw new Error('Invalid email or password');
+          throw new AuthError('Invalid email or password');
         }
 
         // Verify password
         const password = credentials?.password?.toString();
         if (!password) {
-          throw new Error('Invalid password');
+          throw new AuthError('Invalid password');
         }
         const isValidPassword = await bcrypt.compare(
           password,
           user.password_hash
         );
         if (!isValidPassword) {
-          throw new Error('Invalid email or password');
+          throw new AuthError('Invalid email or password');
         }
 
         return { id: user.id, email: user.email };

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db';
 import { eq } from 'drizzle-orm';
-import { sendVerificationEmail } from "@/lib/email";
+import { sendVerificationEmail } from "@/lib/verificationEmail";
 import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {

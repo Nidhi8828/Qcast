@@ -12,7 +12,7 @@ export async function sendVerificationEmail(email: string, token: string) {
   const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify?token=${token}`;
 
   await transporter.sendMail({
-    from: `"Your App Name" <${process.env.EMAIL_USER}>`,
+    from: `"QCast" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Verify Your Email',
 

@@ -66,7 +66,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex justify-center items-start md:items-center p-8">
+    <div className="min-h-screen flex justify-center items-center md:items-center p-8">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-center text-2xl">Sign Up</CardTitle>

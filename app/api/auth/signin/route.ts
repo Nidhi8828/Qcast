@@ -10,7 +10,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing email or password" }, { status: 400 });
     }
 
-    const result = await signIn("credentials", { email, password, redirect: false });
+    let result
+    try {
+      result = await signIn("credentials", { email, password, redirect: false });
+    } catch (authError) {
+      console.error("Authentication error:", authError);
+      return NextResponse.json({error: "Invalid email or password" }, { status: 401 });
+    }
 
     if (!result || result.error) {
       return NextResponse.json({ error: result?.error || "Invalid credentials" }, { status: 401 });

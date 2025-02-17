@@ -1,0 +1,43 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+domains:
+- domain: staging.qcast.me
+  type: PRIMARY
+  zone: qcast.me
+envs:
+- key: POSTGRES_URL
+  scope: RUN_AND_BUILD_TIME
+  value: __POSTGRES_URL_PLACEHOLDER
+- key: NEXTAUTH_URL
+  scope: RUN_AND_BUILD_TIME
+  value: __NEXTAUTH_URL_PLACEHOLDER
+- key: AUTH_SECRET
+  scope: RUN_AND_BUILD_TIME
+  value: __AUTH_SECRET_PLACEHOLDER
+- key: AUTH_TRUST_HOST
+  scope: RUN_AND_BUILD_TIME
+  value: "__AUTH_TRUST_HOST_PLACEHOLDER"
+features:
+- buildpack-stack=ubuntu-22
+ingress:
+  rules:
+  - component:
+      name: qcast
+    match:
+      path:
+        prefix: /
+name: qcast-staging
+region: fra
+services:
+- http_port: 3000
+  image:
+    deploy_on_push:
+      enabled: true
+    registry_type: DOCR
+    repository: qcast
+    tag: __TAG_PLACEHOLDER
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  name: qcast
+  run_command: pnpm start

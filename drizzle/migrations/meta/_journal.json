@@ -15,6 +15,20 @@
       "when": 1739274393954,
       "tag": "0001_round_spyke",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1739336946363,
+      "tag": "0002_clammy_namorita",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1739341257204,
+      "tag": "0003_adorable_korvac",
+      "breakpoints": true
     }
   ]
 }

@@ -20,9 +20,9 @@ export const users = pgTable('users', {
   google_id: varchar('google_id'),
   is_verified: boolean('is_verified').default(false),
   created_at: timestamp('created_at').default(sql`now()`),
-  updated_at: timestamp('updated_at').default(sql`now()`),
   modified_at: timestamp('modified_at').default(sql`now()`),
   deleted_at: timestamp('deleted_at').default(sql`null`),
+  created_by: uuid('created_by'),
   modified_by: uuid('modified_by'),
   deleted_by: uuid('deleted_by').default(sql`null`),
 }, (table) => {
@@ -31,7 +31,6 @@ export const users = pgTable('users', {
     googleIdIdx: index('google_id_idx').on(table.google_id),
   };
 });
-
 export type SelectUser = typeof users.$inferSelect;
 
 export const insertUserSchema = createInsertSchema(users);

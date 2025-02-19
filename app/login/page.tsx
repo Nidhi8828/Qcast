@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter,useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,28 +21,41 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   const [showMessage, setShowMessage] = useState(false);
-  const pathname = usePathname();
-
   const [verificationMessage, setVerificationMessage] = useState(false);
 
+  // useEffect(() => {
+  //   if (searchParams.get('verified') === 'true') {
+  //     setShowMessage(true);
+  //   } else if (searchParams.get('emailSent') === 'true') {
+  //     setVerificationMessage(true);
+  //   }
+  //   // remove the query parameter from the url
+  //   // window.history.replaceState(null, '', '/login');
+  //   // router.replace('/login', { scroll: false });
+  //   // Remove query parameters from URL without a full reroute
+  //   const url = new URL(window.location.href);
+  //   url.searchParams.delete('verified');
+  //   url.searchParams.delete('emailSent');
+  //   window.history.replaceState({}, '', url);
+  // }, [searchParams]);
+
   useEffect(() => {
-    if (searchParams.get('verified') === 'true') {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('verified') === 'true') {
       setShowMessage(true);
-    } else if (searchParams.get('emailSent') === 'true') {
+    } else if (params.get('emailSent') === 'true') {
       setVerificationMessage(true);
     }
-    // remove the query parameter from the url
-    // window.history.replaceState(null, '', '/login');
-    // router.replace('/login', { scroll: false });
-    // Remove query parameters from URL without a full reroute
-    const url = new URL(window.location.href);
-    url.searchParams.delete('verified');
-    url.searchParams.delete('emailSent');
-    window.history.replaceState({}, '', url);
-  }, [pathname]);
-
+  
+    // Remove query parameters without a full reload
+    params.delete('verified');
+    params.delete('emailSent');
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+  }, []);
+  
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');

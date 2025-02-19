@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { signIn } from 'next-auth/react'; 
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -33,7 +33,12 @@ export default function LoginPage() {
     }
     // remove the query parameter from the url
     // window.history.replaceState(null, '', '/login');
-    router.replace('/login', { scroll: false });
+    // router.replace('/login', { scroll: false });
+    // Remove query parameters from URL without a full reroute
+    const url = new URL(window.location.href);
+    url.searchParams.delete('verified');
+    url.searchParams.delete('emailSent');
+    window.history.replaceState({}, '', url);
   }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

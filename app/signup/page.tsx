@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { googleSignIn } from 'app/api/auth/google/route';
+import { signIn } from 'next-auth/react'; 
 import TurnstileComponent from '@/components/turnstile'
 
 export default function SignupPage() {
@@ -111,36 +111,34 @@ export default function SignupPage() {
           </form>
         </CardContent>
         <CardFooter className="justify-center flex-col gap-y-5">
-        <form
-            action={googleSignIn} 
-            className="w-full"
-          >
-            <Button className="w-full flex items-center justify-center gap-2">
-              <svg
-                className="w-5 h-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 48 48"
-              >
-                <path
-                  fill="#4285F4"
-                  d="M23.49 20.57v7.68h10.77c-.44 2.46-1.87 4.54-3.96 5.94l6.42 5.01c3.74-3.46 5.89-8.55 5.89-14.63 0-1.23-.11-2.42-.32-3.57H23.49z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M10.15 28.6c-.61-1.82-.94-3.75-.94-5.75s.33-3.93.94-5.75l-6.42-5.01A23.963 23.963 0 0 0 0 22.85c0 4.14 1.02 8.05 2.83 11.46l7.32-5.71z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M23.49 9.04c3.57 0 6.76 1.23 9.3 3.62l7-6.96C35.26 2.1 29.7 0 23.49 0 14.54 0 6.9 4.84 2.83 11.46l7.32 5.71c1.94-5.74 7.31-8.13 13.34-8.13z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M23.49 47.98c6.21 0 11.76-2.1 16.01-5.69l-6.42-5.01c-2.49 1.65-5.54 2.63-9.3 2.63-6.02 0-11.4-3.39-13.34-8.13l-7.32 5.71c4.07 6.62 11.71 11.46 20.37 11.46z"
-                />
-              </svg>
-              Sign up with Google
-            </Button>
-          </form>
+        <Button
+                   className="w-full flex items-center justify-center gap-2"
+                   onClick={() => signIn('google', { callbackUrl: '/' })}
+                 >
+                   <svg
+                     className="w-5 h-5"
+                     xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 48 48"
+                   >
+                     <path
+                       fill="#4285F4"
+                       d="M23.49 20.57v7.68h10.77c-.44 2.46-1.87 4.54-3.96 5.94l6.42 5.01c3.74-3.46 5.89-8.55 5.89-14.63 0-1.23-.11-2.42-.32-3.57H23.49z"
+                     />
+                     <path
+                       fill="#34A853"
+                       d="M10.15 28.6c-.61-1.82-.94-3.75-.94-5.75s.33-3.93.94-5.75l-6.42-5.01A23.963 23.963 0 0 0 0 22.85c0 4.14 1.02 8.05 2.83 11.46l7.32-5.71z"
+                     />
+                     <path
+                       fill="#FBBC05"
+                       d="M23.49 9.04c3.57 0 6.76 1.23 9.3 3.62l7-6.96C35.26 2.1 29.7 0 23.49 0 14.54 0 6.9 4.84 2.83 11.46l7.32 5.71c1.94-5.74 7.31-8.13 13.34-8.13z"
+                     />
+                     <path
+                       fill="#EA4335"
+                       d="M23.49 47.98c6.21 0 11.76-2.1 16.01-5.69l-6.42-5.01c-2.49 1.65-5.54 2.63-9.3 2.63-6.02 0-11.4-3.39-13.34-8.13l-7.32 5.71c4.07 6.62 11.71 11.46 20.37 11.46z"
+                     />
+                   </svg>
+                   Sign in with Google
+                 </Button>
           <p className="text-sm text-gray-600">
             Already have an account?{' '}
             <Link href="/login" className="text-blue-600 hover:underline">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -11,11 +11,16 @@ import { Label } from "@/components/ui/label"
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const token = searchParams.get("token")
+  // const token = searchParams.get("token")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
+  const [token, setToken] = useState("")
+
+  useEffect(() => {
+    setToken(searchParams.get("token") || "")
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

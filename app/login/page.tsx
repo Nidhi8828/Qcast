@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  // const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();  Issue: useSearchParams() is a client-side hook, but if used inside a server component, it breaks hydration.
   const [showMessage, setShowMessage] = useState(false);
   const [verificationMessage, setVerificationMessage] = useState(false);
 

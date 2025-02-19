@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signIn } from 'next-auth/react';
+import { Suspense } from 'react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,6 +23,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showMessage, setShowMessage] = useState(false);
+  const pathname = usePathname();
 
   const [verificationMessage, setVerificationMessage] = useState(false);
 
@@ -39,7 +41,7 @@ export default function LoginPage() {
     url.searchParams.delete('verified');
     url.searchParams.delete('emailSent');
     window.history.replaceState({}, '', url);
-  }, [searchParams]);
+  }, [pathname]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -69,6 +71,7 @@ export default function LoginPage() {
   }
 
   return (
+    <Suspense>
     <div className="min-h-screen flex flex-col justify-center items-center md:items-center p-8">
       {showMessage && (
         <div className="text-black text-center p-4 rounded-lg mb-4">
@@ -158,5 +161,24 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
     </div>
+    </Suspense>
   );
 }
+
+
+// This is Page as Server Component
+// type SearchParams = {
+//   searchParams?: Promise<Record<string, string>>;
+// };
+
+// export default async function Page({ searchParams }: SearchParams) {
+//   const urlSearchParams = new URLSearchParams(await searchParams);
+
+//   return (
+//       <p>
+//           {urlSearchParams.has("query")
+//               ? `This is your query: ${urlSearchParams.get("query")}`
+//               : "No query param provided"}
+//       </p>
+//   );
+// }

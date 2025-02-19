@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// import { signIn } from 'next-auth/react';
 import {
   Card,
   CardHeader,
@@ -16,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signIn } from 'next-auth/react'; 
-import TurnstileComponent from '@/components/turnstile'
+// import TurnstileComponent from '@/components/turnstile'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -38,18 +37,18 @@ export default function SignupPage() {
   
     try {
     
-      const captchaResponse = await fetch('/api/auth/validate-captcha', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: token }),
-      });
+    //   const captchaResponse = await fetch('/api/auth/validate-captcha', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ token: token }),
+    //   });
   
-      const captchaData = await captchaResponse.json();
+    //   const captchaData = await captchaResponse.json();
   
-      if (!captchaResponse.ok || !captchaData.success) {
-        setError(captchaData.error || 'CAPTCHA validation failed');
-        return;
-      }
+    //   if (!captchaResponse.ok || !captchaData.success) {
+    //     setError(captchaData.error || 'CAPTCHA validation failed');
+    //     return;
+    //   }
   
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -101,9 +100,9 @@ export default function SignupPage() {
                 required
               />
             </div>
-            <TurnstileComponent  onToken={(token) => {
+            {/* <TurnstileComponent  onToken={(token) => {
               console.log("CAPTCHA token:", token);
-              setToken(token)}}/>
+              setToken(token)}}/> */}
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button type="submit" className="w-full">
               Sign Up

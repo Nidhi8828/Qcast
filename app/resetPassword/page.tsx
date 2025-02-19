@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function ResetPasswordPage() {
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
   const router = useRouter()
   // const token = searchParams.get("token")
   const [password, setPassword] = useState("")
@@ -19,8 +19,9 @@ export default function ResetPasswordPage() {
   const [token, setToken] = useState("")
 
   useEffect(() => {
-    setToken(searchParams.get("token") || "")
-  }, [searchParams])
+    const params = new URLSearchParams(window.location.search)
+    setToken(params.get("token") || "");
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

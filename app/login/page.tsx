@@ -14,7 +14,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signIn } from 'next-auth/react';
-import { Suspense } from 'react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -84,7 +83,6 @@ export default function LoginPage() {
   }
 
   return (
-    <Suspense>
     <div className="min-h-screen flex flex-col justify-center items-center md:items-center p-8">
       {showMessage && (
         <div className="text-black text-center p-4 rounded-lg mb-4">
@@ -174,7 +172,6 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
     </div>
-    </Suspense>
   );
 }
 

@@ -29,8 +29,8 @@ export default function TurnstileComponent({ onToken }: TurnstileComponentProps)
     <div>
       <div
         className="cf-turnstile"
-        // data-sitekey="0x4AAAAAAA8xm9OZHqv04NO6"
-        data-sitekey={process.env.CLOUDFLARE_SITE_KEY}
+        data-sitekey="0x4AAAAAAA8xm9OZHqv04NO6"
+        // data-sitekey={process.env.CLOUDFLARE_SITE_KEY}
         data-theme="light"
         data-callback="onTurnstileCallback" 
       ></div>

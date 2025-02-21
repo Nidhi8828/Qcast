@@ -35,6 +35,11 @@ export async function User() {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {user && (
+          <DropdownMenuItem>
+            <Link href="/userProfile">My Profile</Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuItem>Support</DropdownMenuItem>
         <DropdownMenuSeparator />

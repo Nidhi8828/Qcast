@@ -1,5 +1,5 @@
 'use client';
-
+import React, { Suspense } from 'react';
 import { useState, useEffect } from 'react';
 import {
   Card,
@@ -13,7 +13,7 @@ import { useSearchParams } from 'next/navigation';
 import DesktopNav from 'app/(dashboard)/DesktopNav';
 import Providers from 'app/(dashboard)/providers';
 
-export default function ViewProfilePage() {
+const  ViewProfilePage=()=> {
   const [profile, setProfile] = useState({
     email:'',
     first_name: '',
@@ -28,12 +28,14 @@ export default function ViewProfilePage() {
   const searchParams = useSearchParams();
   const profileId = searchParams.get('email');
 
-  if(!profileId)
-  {
-    console.log("No profile found");
-  }
+ 
 
   useEffect(() => {
+
+    if (!profileId) {
+     console.error("No profileId found");
+      return;
+    }
     async function fetchProfile() {
       try {
         const response = await fetch(`/api/profile?email=${profileId}`, { method: 'GET' });
@@ -131,5 +133,15 @@ export default function ViewProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading User Profile...</div>}>
+      <ViewProfilePage />
+    </Suspense>
   );
 }

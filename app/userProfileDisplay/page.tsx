@@ -9,28 +9,37 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { Pencil } from 'lucide-react';
-
+import { useSearchParams } from 'next/navigation';
 import DesktopNav from 'app/(dashboard)/DesktopNav';
 import Providers from 'app/(dashboard)/providers';
 
 export default function ViewProfilePage() {
   const [profile, setProfile] = useState({
     email:'',
-    firstName: '',
-    lastName: '',
-    dob: '',
-    city: '',
-    country: '',
+    first_name: '',
+    last_name: '',
+    date_of_birth: '',
+    location_city: '',
+    location_country: '',
     likes: '',
+    profile_picture:''
   });
+
+  const searchParams = useSearchParams();
+  const profileId = searchParams.get('email');
+
+  if(!profileId)
+  {
+    console.log("No profile found");
+  }
 
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const response = await fetch('/api/profile', { method: 'GET' });
+        const response = await fetch(`/api/profile?email=${profileId}`, { method: 'GET' });
         if (response.ok) {
           const data = await response.json();
-          setProfile(data.profile);
+          setProfile(data);
         }
       } catch (err) {
         console.error('Failed to fetch profile:', err);
@@ -38,6 +47,18 @@ export default function ViewProfilePage() {
     }
     fetchProfile();
   }, []);
+
+  // if (loading) {
+  //   return <div>Loading profile...</div>;
+  // }
+
+  // if (error) {
+  //   return <div>Error: {error}</div>;
+  // }
+
+  if (!profile) {
+    return <div>No profile found.</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -59,17 +80,17 @@ export default function ViewProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-700">First Name</p>
-                  <p className="text-lg text-gray-800">{profile.firstName || 'N/A'}</p>
+                  <p className="text-lg text-gray-800">{profile.first_name || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Last Name</p>
-                  <p className="text-lg text-gray-800">{profile.lastName || 'N/A'}</p>
+                  <p className="text-lg text-gray-800">{profile.last_name || 'N/A'}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-gray-700">Date of Birth</p>
-                  <p className="text-lg text-gray-800">{profile.dob || 'N/A'}</p>
+                  <p className="text-lg text-gray-800">{profile.date_of_birth || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-700">Email Address</p>
@@ -79,11 +100,11 @@ export default function ViewProfilePage() {
               <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-gray-700">City</p>
-                <p className="text-lg text-gray-800">{profile.city || 'N/A'}</p>
+                <p className="text-lg text-gray-800">{profile.location_city || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-700">Country</p>
-                <p className="text-lg text-gray-800">{profile.country || 'N/A'}</p>
+                <p className="text-lg text-gray-800">{profile.location_country || 'N/A'}</p>
               </div>
               </div>
               <div>
@@ -100,11 +121,9 @@ export default function ViewProfilePage() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Right Section (Image or Additional Content) */}
         <div className="col-span-3 bg-white shadow-lg p-4 rounded-lg -mt-2 h-full">
           <img
-            src="/placeholder-user.jpg"
+            src={profile?.profile_picture || '/placeholder-user.jpg'}
             alt="Profile Visual"
             className="w-32 h-32 mx-auto rounded-full shadow-md"
           />

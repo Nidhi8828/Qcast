@@ -22,6 +22,7 @@ export default function UserProfilePage() {
     firstName: '',
     lastName: '',
     dob: '',
+    email: '',
     city: '',
     country: '',
     likes: '',
@@ -30,21 +31,6 @@ export default function UserProfilePage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const router = useRouter();
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await fetch('/api/profile', { method: 'GET' });
-        if (response.ok) {
-          const data = await response.json();
-          setProfile(data.profile);
-        }
-      } catch (err) {
-        console.error('Failed to fetch profile:', err);
-      }
-    }
-    fetchProfile();
-  }, []);
 
   function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -68,7 +54,7 @@ export default function UserProfilePage() {
     setError('');
     setSuccess('');
 
-    if (!profile.firstName || !profile.lastName || !profile.dob || !profile.city || !profile.country || !profile.likes) {
+    if (!profile.firstName || !profile.lastName || !profile.dob ||!profile.email|| !profile.city || !profile.country || !profile.likes) {
       setError('Please fill in all fields');
       return;
     }
@@ -76,7 +62,7 @@ export default function UserProfilePage() {
     const exampleuserid="1fb6f28b-d1af-4bcc-b261-c859e92742a3";
 
     const formData = new FormData();
-    formData.append('userId',exampleuserid );
+    formData.append('email',profile.email );
     formData.append('firstName', profile.firstName);
     formData.append('lastName', profile.lastName);
     formData.append('dob', profile.dob);
@@ -95,7 +81,7 @@ export default function UserProfilePage() {
 
       if (response.ok) {
         setSuccess('Profile saved successfully');
-        router.push('/userProfileDisplay'); // Navigate to the profile page after successful update
+        router.push(`/userProfileDisplay?email=${profile.email}`); 
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to save profile');
@@ -173,6 +159,23 @@ export default function UserProfilePage() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                      Email used for signin
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="text"
+                      placeholder="Enter your email used for signin"
+                      value={profile.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
                     <Label htmlFor="city" className="text-sm font-medium text-gray-700">
                       City
                     </Label>
@@ -186,7 +189,6 @@ export default function UserProfilePage() {
                       required
                     />
                   </div>
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="country" className="text-sm font-medium text-gray-700">
                     Country
@@ -200,6 +202,7 @@ export default function UserProfilePage() {
                     onChange={handleChange}
                     required
                   />
+                </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="likes" className="text-sm font-medium text-gray-700">

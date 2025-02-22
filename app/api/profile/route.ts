@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db, userProfiles } from '@/lib/db';
 import path from 'path';
 import fs from 'fs';
+import { eq } from 'drizzle-orm';
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData(); // Parse the FormData object
-    const userId = formData.get('userId') as string;
+    const email = formData.get('email') as string;
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
     const dob = formData.get('dob') as string;
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // Insert data into the database
     await db.insert(userProfiles).values({
-      user_id: userId,
+      email: email,
       first_name: firstName,
       last_name: lastName,
       date_of_birth: dateOfBirth,
@@ -56,6 +57,37 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
-  return NextResponse.json({ message: 'Method not implemented' }, { status: 405 });
+export async function GET(req: NextRequest) {
+  try {
+    // Get the email from query parameters
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get('email');
+
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email query parameter is required' },
+        { status: 400 }
+      );
+    }
+
+    // Fetch the user by email
+    const userResult = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.email, email))
+      .limit(1);
+
+      console.log('User fetched from database:', userResult);
+
+    if (userResult.length === 0) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const user = userResult[0];
+    console.log('userResult[0]', user);
+    return NextResponse.json(user, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
+  }
 }

@@ -91,3 +91,76 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
   }
 }
+
+
+export async function PUT(req: NextRequest) {
+  try {
+    const formData = await req.formData(); // Parse the FormData object
+    const email = formData.get('email') as string;
+
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email is required for updating the profile' },
+        { status: 400 }
+      );
+    }
+
+    // Get fields for update
+    const firstName = formData.get('firstName') as string | null;
+    const lastName = formData.get('lastName') as string | null;
+    const dob = formData.get('dob') as string | null;
+    const city = formData.get('city') as string | null;
+    const country = formData.get('country') as string | null;
+    const likes = formData.get('likes') as string | null;
+    const profileImage = formData.get('profileImage') as File | null;
+
+    // Prepare the updated fields
+    const updatedFields: any = {};
+
+    if (firstName) updatedFields.first_name = firstName;
+    if (lastName) updatedFields.last_name = lastName;
+    if (dob) {
+      const dateOfBirth = new Date(dob).toISOString().split('T')[0];
+      updatedFields.date_of_birth = dateOfBirth;
+    }
+    if (city) updatedFields.location_city = city;
+    if (country) updatedFields.location_country = country;
+    if (likes) updatedFields.likes = likes;
+
+    // Handle file upload for profile picture
+    if (profileImage) {
+      const uploadDir = path.join(process.cwd(), 'public/uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const fileName = `${Date.now()}-${profileImage.name}`;
+      const relativePath = `/uploads/${fileName}`;
+      const fullPath = path.join(uploadDir, fileName);
+
+      // Save the uploaded file to the server
+      const fileBuffer = Buffer.from(await profileImage.arrayBuffer());
+      fs.writeFileSync(fullPath, fileBuffer);
+      updatedFields.profile_picture = relativePath;
+    }
+
+    // Update the user profile in the database
+    const result = await db
+      .update(userProfiles)
+      .set(updatedFields)
+      .where(eq(userProfiles.email, email))
+      .returning();
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { message: 'Profile updated successfully', updatedFields },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+  }
+}

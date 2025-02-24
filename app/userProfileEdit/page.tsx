@@ -100,7 +100,7 @@ const  UserProfileEdit= () => {
 
     try {
       const response = await fetch(`/api/profile`, {
-        method: 'PUT', // You can use PATCH here if you're only updating specific fields
+        method: 'PUT',
         body: formData,
       });
 

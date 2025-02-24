@@ -67,7 +67,6 @@ const ViewProfilePage = () => {
 
   
 const handleEditProfile = () => {
-  // Redirect to userProfile.tsx with the email as a query parameter
   router.push(`/userProfileEdit?email=${profile.email}`);
 };
 

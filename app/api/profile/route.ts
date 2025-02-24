@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData(); // Parse the FormData object
+    const formData = await req.formData(); 
     const email = formData.get('email') as string;
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
@@ -16,10 +16,8 @@ export async function POST(req: NextRequest) {
     const likes = formData.get('likes') as string;
     const profileImage = formData.get('profileImage') as File | null;
 
-    // Convert DOB to ISO format and extract the date part
     const dateOfBirth = new Date(dob).toISOString().split('T')[0];
 
-    // Handle file upload
     let imagePath: string | null = null;
 
     if (profileImage) {
@@ -28,11 +26,10 @@ export async function POST(req: NextRequest) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
-      const fileName = `${Date.now()}-${profileImage.name}`; // Use original file name or adjust as needed
+      const fileName = `${Date.now()}-${profileImage.name}`; 
       const relativePath = `/uploads/${fileName}`;
       const fullPath = path.join(uploadDir, fileName);
 
-      // Save the uploaded file to the server
       const fileBuffer = Buffer.from(await profileImage.arrayBuffer());
       fs.writeFileSync(fullPath, fileBuffer);
       imagePath = relativePath;
@@ -59,7 +56,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    // Get the email from query parameters
+  
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email');
 
@@ -70,7 +67,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch the user by email
     const userResult = await db
       .select()
       .from(userProfiles)
@@ -95,7 +91,7 @@ export async function GET(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
-    const formData = await req.formData(); // Parse the FormData object
+    const formData = await req.formData(); 
     const email = formData.get('email') as string;
 
     if (!email) {
@@ -105,7 +101,6 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Get fields for update
     const firstName = formData.get('firstName') as string | null;
     const lastName = formData.get('lastName') as string | null;
     const dob = formData.get('dob') as string | null;
@@ -114,7 +109,7 @@ export async function PUT(req: NextRequest) {
     const likes = formData.get('likes') as string | null;
     const profileImage = formData.get('profileImage') as File | null;
 
-    // Prepare the updated fields
+    
     const updatedFields: any = {};
 
     if (firstName) updatedFields.first_name = firstName;
@@ -127,7 +122,6 @@ export async function PUT(req: NextRequest) {
     if (country) updatedFields.location_country = country;
     if (likes) updatedFields.likes = likes;
 
-    // Handle file upload for profile picture
     if (profileImage) {
       const uploadDir = path.join(process.cwd(), 'public/uploads');
       if (!fs.existsSync(uploadDir)) {
@@ -138,13 +132,12 @@ export async function PUT(req: NextRequest) {
       const relativePath = `/uploads/${fileName}`;
       const fullPath = path.join(uploadDir, fileName);
 
-      // Save the uploaded file to the server
+    
       const fileBuffer = Buffer.from(await profileImage.arrayBuffer());
       fs.writeFileSync(fullPath, fileBuffer);
       updatedFields.profile_picture = relativePath;
     }
-
-    // Update the user profile in the database
+    
     const result = await db
       .update(userProfiles)
       .set(updatedFields)

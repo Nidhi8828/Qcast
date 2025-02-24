@@ -16,7 +16,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const secretKey = process.env.TURNSTILE_SECRET_KEY; 
+    // const secretKey = process.env.TURNSTILE_SECRET_KEY; 
+    const secretKey = "0x4AAAAAAA8xm-P-1jqsZ8jKOpN6cPP2eqw";
     const verificationUrl = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
     const verificationResponse = await fetch(verificationUrl, {

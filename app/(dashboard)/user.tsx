@@ -136,12 +136,6 @@ export type UserProfile = InferSelectModel<typeof userProfiles>;
 export async function User() {
   let session = await auth();
   let user = session?.user;
- 
-
-
-  // let userProfile = null;
-  // if (user?.email) {
-  //   userProfile = await db.select().from(userProfiles).where(eq(userProfiles.email, user.email));
 
   let userResult: UserProfile[] = [];
   if (user?.email) {
@@ -152,7 +146,6 @@ export async function User() {
         .where(eq(userProfiles.email, user.email))
         .limit(1);
 
-      // console.log('Query Result:', userResult); // Debugging log to verify query output
     } catch (error) {
       console.error('Error fetching user profile:', error);
     }

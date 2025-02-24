@@ -1,6 +1,6 @@
 'use client';
-
-import { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Card,
@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import DesktopNav from 'app/(dashboard)/DesktopNav';
 import Providers from 'app/(dashboard)/providers';
 
-export default function UserProfileEdit() {
+const  UserProfileEdit= () => {
   const [profile, setProfile] = useState({
     email:'',
     first_name: '',
@@ -260,5 +260,14 @@ export default function UserProfileEdit() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading User Profile...</div>}>
+      <UserProfileEdit />
+    </Suspense>
   );
 }
